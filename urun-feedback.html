@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ürün Geri Bildirimi</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: #f5f4ff;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  .card {
+    background: #fff;
+    border-radius: 20px;
+    max-width: 540px;
+    width: 100%;
+    overflow: hidden;
+    box-shadow: 0 2px 32px rgba(99,91,255,0.1);
+  }
+
+  .card-header {
+    background: linear-gradient(135deg, #635bff 0%, #9b8cff 100%);
+    padding: 32px 36px;
+    color: #fff;
+  }
+
+  .product-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.15);
+    padding: 5px 12px;
+    border-radius: 100px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 16px;
+  }
+
+  .product-badge .dot {
+    width: 6px; height: 6px;
+    background: #7effd4;
+    border-radius: 50%;
+  }
+
+  .card-header h1 {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  .card-header p {
+    font-size: 14px;
+    opacity: 0.75;
+  }
+
+  .card-body {
+    padding: 36px;
+  }
+
+  .field {
+    margin-bottom: 24px;
+  }
+
+  .field label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #1a1a2e;
+    margin-bottom: 10px;
+  }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .chip {
+    padding: 7px 14px;
+    border-radius: 100px;
+    border: 1.5px solid #e5e3ff;
+    background: transparent;
+    font-size: 13px;
+    color: #635bff;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+
+  .chip:hover { background: #f0eeff; border-color: #635bff; }
+  .chip.sel { background: #635bff; border-color: #635bff; color: #fff; }
+
+  .slider-wrap {
+    padding: 4px 0;
+  }
+
+  input[type=range] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 4px;
+    background: #e5e3ff;
+    border-radius: 100px;
+    outline: none;
+    margin-bottom: 8px;
+  }
+
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: #635bff;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(99,91,255,0.3);
+  }
+
+  .slider-val {
+    text-align: right;
+    font-size: 13px;
+    color: #635bff;
+    font-weight: 600;
+  }
+
+  .slider-ends {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: #aaa;
+    margin-top: -4px;
+  }
+
+  textarea {
+    width: 100%;
+    border: 1.5px solid #e5e3ff;
+    border-radius: 12px;
+    padding: 12px 14px;
+    font-size: 14px;
+    font-family: inherit;
+    color: #1a1a2e;
+    resize: none;
+    height: 90px;
+    outline: none;
+    transition: border-color 0.15s;
+    background: #faf9ff;
+  }
+
+  textarea:focus { border-color: #635bff; background: #fff; }
+
+  .radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .radio-opt {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    border: 1.5px solid #e5e3ff;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-size: 14px;
+    color: #444;
+    background: transparent;
+    width: 100%;
+    font-family: inherit;
+    text-align: left;
+  }
+
+  .radio-opt:hover { border-color: #635bff; background: #faf9ff; }
+  .radio-opt.sel { border-color: #635bff; background: #f0eeff; color: #635bff; font-weight: 600; }
+
+  .radio-dot {
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    border: 2px solid #c5c2ff;
+    flex-shrink: 0;
+    transition: all 0.15s;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .radio-opt.sel .radio-dot {
+    border-color: #635bff;
+    background: #635bff;
+  }
+
+  .radio-opt.sel .radio-dot::after {
+    content: '';
+    width: 6px; height: 6px;
+    background: #fff;
+    border-radius: 50%;
+  }
+
+  .submit-btn {
+    width: 100%;
+    padding: 15px;
+    background: #635bff;
+    border: none;
+    border-radius: 12px;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+    margin-top: 8px;
+    font-family: inherit;
+  }
+
+  .submit-btn:hover { background: #4f47e5; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(99,91,255,0.3); }
+
+  .thanks { display: none; text-align: center; padding: 60px 36px; }
+  .thanks.visible { display: block; }
+  .thanks .icon { font-size: 52px; margin-bottom: 20px; }
+  .thanks h2 { font-size: 22px; font-weight: 700; color: #1a1a2e; margin-bottom: 8px; }
+  .thanks p { font-size: 14px; color: #888; line-height: 1.6; }
+  .form-area.hidden { display: none; }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="form-area" id="formArea">
+    <div class="card-header">
+      <div class="product-badge"><span class="dot"></span> Ürün Ekibi</div>
+      <h1>Deneyiminizi paylaşın</h1>
+      <p>Geri bildiriminiz bir sonraki versiyonu şekillendirecek.</p>
+    </div>
+    <div class="card-body">
+
+      <div class="field">
+        <label>En çok hangi özelliği kullanıyorsunuz?</label>
+        <div class="chips">
+          <button class="chip" onclick="toggleChip(this)">Dashboard</button>
+          <button class="chip" onclick="toggleChip(this)">Raporlar</button>
+          <button class="chip" onclick="toggleChip(this)">Entegrasyonlar</button>
+          <button class="chip" onclick="toggleChip(this)">API</button>
+          <button class="chip" onclick="toggleChip(this)">Mobil Uygulama</button>
+          <button class="chip" onclick="toggleChip(this)">Bildirimler</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Kullanım kolaylığı — 10 üzerinden kaç?</label>
+        <div class="slider-wrap">
+          <input type="range" min="1" max="10" value="7" id="slider" oninput="updateSlider(this)">
+          <div class="slider-ends"><span>Zor</span><span class="slider-val" id="sliderVal">7 / 10</span></div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Ürünü nasıl tanımlarsınız?</label>
+        <div class="radio-group">
+          <button class="radio-opt" onclick="selectRadio(this)"><span class="radio-dot"></span> Olmazsa olmaz, her gün kullanıyorum</button>
+          <button class="radio-opt" onclick="selectRadio(this)"><span class="radio-dot"></span> Faydalı ama bazen alternatife geçiyorum</button>
+          <button class="radio-opt" onclick="selectRadio(this)"><span class="radio-dot"></span> Deneme aşamasındayım</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>En çok neyi geliştirmemizi istersiniz?</label>
+        <textarea placeholder="Önerinizi yazın..."></textarea>
+      </div>
+
+      <button class="submit-btn" onclick="submit()">Geri Bildirimi Gönder</button>
+    </div>
+  </div>
+
+  <div class="thanks" id="thanks">
+    <div class="icon">🚀</div>
+    <h2>Teşekkürler!</h2>
+    <p>Geri bildiriminiz ürün yol haritamıza<br>doğrudan katkı sağlayacak.</p>
+  </div>
+</div>
+
+<script>
+  function toggleChip(btn) { btn.classList.toggle('sel'); }
+
+  function updateSlider(el) {
+    document.getElementById('sliderVal').textContent = el.value + ' / 10';
+  }
+
+  function selectRadio(btn) {
+    btn.closest('.radio-group').querySelectorAll('.radio-opt').forEach(b => b.classList.remove('sel'));
+    btn.classList.add('sel');
+  }
+
+  function submit() {
+    document.getElementById('formArea').classList.add('hidden');
+    document.getElementById('thanks').classList.add('visible');
+  }
+</script>
+</body>
+</html>

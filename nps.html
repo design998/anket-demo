@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NPS Anketi</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: #0a0a0a;
+    color: #fff;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  .card {
+    max-width: 560px;
+    width: 100%;
+  }
+
+  .tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #6ee7b7;
+    border: 1px solid #6ee7b720;
+    background: #6ee7b710;
+    padding: 4px 10px;
+    border-radius: 100px;
+    margin-bottom: 28px;
+  }
+
+  h1 {
+    font-size: clamp(22px, 4vw, 32px);
+    font-weight: 700;
+    line-height: 1.25;
+    margin-bottom: 12px;
+    color: #fff;
+  }
+
+  .sub {
+    font-size: 15px;
+    color: #888;
+    margin-bottom: 40px;
+    line-height: 1.6;
+  }
+
+  .scale {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+
+  .scale button {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    border: 1px solid #2a2a2a;
+    background: #111;
+    color: #aaa;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    flex-shrink: 0;
+  }
+
+  .scale button:hover {
+    border-color: #6ee7b7;
+    color: #6ee7b7;
+    background: #6ee7b710;
+  }
+
+  .scale button.selected {
+    background: #6ee7b7;
+    border-color: #6ee7b7;
+    color: #0a0a0a;
+  }
+
+  .scale-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #555;
+    margin-bottom: 36px;
+  }
+
+  .reason {
+    margin-bottom: 28px;
+    display: none;
+  }
+
+  .reason.visible { display: block; }
+
+  .reason label {
+    display: block;
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 10px;
+  }
+
+  .reason textarea {
+    width: 100%;
+    background: #111;
+    border: 1px solid #2a2a2a;
+    border-radius: 12px;
+    padding: 14px 16px;
+    color: #fff;
+    font-size: 14px;
+    font-family: inherit;
+    resize: none;
+    height: 100px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .reason textarea:focus { border-color: #6ee7b7; }
+
+  .submit-btn {
+    width: 100%;
+    padding: 15px;
+    background: #6ee7b7;
+    border: none;
+    border-radius: 12px;
+    color: #0a0a0a;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.15s;
+    display: none;
+  }
+
+  .submit-btn.visible { display: block; }
+  .submit-btn:hover { opacity: 0.85; }
+
+  .thanks {
+    text-align: center;
+    padding: 48px 0;
+    display: none;
+  }
+
+  .thanks.visible { display: block; }
+
+  .thanks .emoji { font-size: 48px; margin-bottom: 20px; }
+  .thanks h2 { font-size: 22px; margin-bottom: 10px; }
+  .thanks p { color: #888; font-size: 15px; }
+
+  .form-area { }
+  .form-area.hidden { display: none; }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="form-area" id="formArea">
+    <div class="tag">NPS Anketi</div>
+    <h1>Bizi bir arkadaşınıza tavsiye eder misiniz?</h1>
+    <p class="sub">0 = Kesinlikle tavsiye etmem &nbsp;·&nbsp; 10 = Kesinlikle tavsiye ederim</p>
+
+    <div class="scale" id="scale"></div>
+    <div class="scale-labels">
+      <span>Hiç olası değil</span>
+      <span>Kesinlikle ederim</span>
+    </div>
+
+    <div class="reason" id="reason">
+      <label>Bunu seçmenizin ana nedeni nedir?</label>
+      <textarea placeholder="Düşüncelerinizi yazın..."></textarea>
+    </div>
+
+    <button class="submit-btn" id="submitBtn" onclick="submit()">Yanıtı Gönder</button>
+  </div>
+
+  <div class="thanks" id="thanks">
+    <div class="emoji">🙏</div>
+    <h2>Teşekkür ederiz!</h2>
+    <p>Geri bildiriminiz ürünümüzü geliştirmemize yardımcı oluyor.</p>
+  </div>
+</div>
+
+<script>
+  const scale = document.getElementById('scale');
+  let selected = null;
+
+  for (let i = 0; i <= 10; i++) {
+    const btn = document.createElement('button');
+    btn.textContent = i;
+    btn.onclick = () => {
+      document.querySelectorAll('.scale button').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      selected = i;
+      document.getElementById('reason').classList.add('visible');
+      document.getElementById('submitBtn').classList.add('visible');
+    };
+    scale.appendChild(btn);
+  }
+
+  function submit() {
+    document.getElementById('formArea').classList.add('hidden');
+    document.getElementById('thanks').classList.add('visible');
+  }
+</script>
+</body>
+</html>

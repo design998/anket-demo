@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Müşteri Memnuniyeti</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: #faf7f2;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  .card {
+    background: #fff;
+    border-radius: 24px;
+    padding: 48px 40px;
+    max-width: 500px;
+    width: 100%;
+    box-shadow: 0 4px 40px rgba(0,0,0,0.06);
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 36px;
+  }
+
+  .brand-dot {
+    width: 32px; height: 32px;
+    background: #f97316;
+    border-radius: 8px;
+  }
+
+  .brand-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1a1a1a;
+  }
+
+  h1 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1a1a1a;
+    line-height: 1.3;
+    margin-bottom: 8px;
+  }
+
+  .sub {
+    font-size: 14px;
+    color: #9a8f86;
+    margin-bottom: 36px;
+  }
+
+  .section-label {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #c4b9b0;
+    margin-bottom: 14px;
+  }
+
+  .stars {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 32px;
+  }
+
+  .star {
+    font-size: 36px;
+    cursor: pointer;
+    filter: grayscale(1) opacity(0.3);
+    transition: all 0.1s;
+    user-select: none;
+  }
+
+  .star.lit {
+    filter: none;
+  }
+
+  .star:hover { transform: scale(1.1); }
+
+  .star-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: #c4b9b0;
+    margin-top: -20px;
+    margin-bottom: 32px;
+  }
+
+  .aspects {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .aspect {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .aspect-name {
+    font-size: 14px;
+    color: #444;
+  }
+
+  .aspect-pills {
+    display: flex;
+    gap: 6px;
+  }
+
+  .pill {
+    padding: 5px 12px;
+    border-radius: 100px;
+    border: 1px solid #e8e2dc;
+    font-size: 12px;
+    color: #888;
+    cursor: pointer;
+    transition: all 0.15s;
+    background: transparent;
+  }
+
+  .pill:hover { border-color: #f97316; color: #f97316; }
+  .pill.sel { background: #f97316; border-color: #f97316; color: #fff; }
+
+  .comment {
+    margin-bottom: 28px;
+  }
+
+  .comment label {
+    display: block;
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 8px;
+  }
+
+  .comment textarea {
+    width: 100%;
+    border: 1px solid #e8e2dc;
+    border-radius: 12px;
+    padding: 12px 14px;
+    font-size: 14px;
+    font-family: inherit;
+    color: #1a1a1a;
+    resize: none;
+    height: 80px;
+    outline: none;
+    background: #faf7f2;
+    transition: border-color 0.15s;
+  }
+
+  .comment textarea:focus { border-color: #f97316; }
+
+  .submit-btn {
+    width: 100%;
+    padding: 15px;
+    background: #1a1a1a;
+    border: none;
+    border-radius: 12px;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .submit-btn:hover { background: #333; }
+
+  .thanks { display: none; text-align: center; padding: 40px 0; }
+  .thanks.visible { display: block; }
+  .thanks .big { font-size: 52px; margin-bottom: 20px; }
+  .thanks h2 { font-size: 22px; font-weight: 700; color: #1a1a1a; margin-bottom: 8px; }
+  .thanks p { color: #9a8f86; font-size: 14px; }
+  .form-wrap.hidden { display: none; }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="form-wrap" id="formWrap">
+    <div class="brand">
+      <div class="brand-dot"></div>
+      <span class="brand-name">Müşteri Deneyimi</span>
+    </div>
+
+    <h1>Hizmetimizi nasıl buldunuz?</h1>
+    <p class="sub">Birkaç saniyenizi ayırın, sizin için daha iyisini yapalım.</p>
+
+    <div class="section-label">Genel puan</div>
+    <div class="stars" id="stars">
+      <span class="star" data-i="1">⭐</span>
+      <span class="star" data-i="2">⭐</span>
+      <span class="star" data-i="3">⭐</span>
+      <span class="star" data-i="4">⭐</span>
+      <span class="star" data-i="5">⭐</span>
+    </div>
+    <div class="star-labels"><span>Kötü</span><span>Mükemmel</span></div>
+
+    <div class="section-label">Detaylı değerlendirme</div>
+    <div class="aspects">
+      <div class="aspect">
+        <span class="aspect-name">Hız</span>
+        <div class="aspect-pills">
+          <button class="pill" onclick="togglePill(this)">Yavaş</button>
+          <button class="pill" onclick="togglePill(this)">Orta</button>
+          <button class="pill" onclick="togglePill(this)">Hızlı</button>
+        </div>
+      </div>
+      <div class="aspect">
+        <span class="aspect-name">İletişim</span>
+        <div class="aspect-pills">
+          <button class="pill" onclick="togglePill(this)">Zayıf</button>
+          <button class="pill" onclick="togglePill(this)">İyi</button>
+          <button class="pill" onclick="togglePill(this)">Harika</button>
+        </div>
+      </div>
+      <div class="aspect">
+        <span class="aspect-name">Fiyat/Kalite</span>
+        <div class="aspect-pills">
+          <button class="pill" onclick="togglePill(this)">Pahalı</button>
+          <button class="pill" onclick="togglePill(this)">Makul</button>
+          <button class="pill" onclick="togglePill(this)">Uygun</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="comment">
+      <label>Eklemek istediğiniz bir şey var mı?</label>
+      <textarea placeholder="Deneyiminizi anlatın..."></textarea>
+    </div>
+
+    <button class="submit-btn" onclick="submit()">Değerlendirmeyi Gönder</button>
+  </div>
+
+  <div class="thanks" id="thanks">
+    <div class="big">🧡</div>
+    <h2>Harika, teşekkürler!</h2>
+    <p>Geri bildiriminiz bizim için çok değerli.</p>
+  </div>
+</div>
+
+<script>
+  let starVal = 0;
+  document.querySelectorAll('.star').forEach(s => {
+    s.addEventListener('click', () => {
+      starVal = +s.dataset.i;
+      document.querySelectorAll('.star').forEach((x, idx) => {
+        x.classList.toggle('lit', idx < starVal);
+      });
+    });
+    s.addEventListener('mouseover', () => {
+      const i = +s.dataset.i;
+      document.querySelectorAll('.star').forEach((x, idx) => {
+        x.classList.toggle('lit', idx < i);
+      });
+    });
+    s.addEventListener('mouseout', () => {
+      document.querySelectorAll('.star').forEach((x, idx) => {
+        x.classList.toggle('lit', idx < starVal);
+      });
+    });
+  });
+
+  function togglePill(btn) {
+    const group = btn.parentElement;
+    group.querySelectorAll('.pill').forEach(p => p.classList.remove('sel'));
+    btn.classList.add('sel');
+  }
+
+  function submit() {
+    document.getElementById('formWrap').classList.add('hidden');
+    document.getElementById('thanks').classList.add('visible');
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Etkinlik Sonrası Anket</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: #fff9f0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  .card {
+    max-width: 520px;
+    width: 100%;
+    background: #fff;
+    border-radius: 28px;
+    overflow: hidden;
+    box-shadow: 0 8px 48px rgba(255,100,50,0.1);
+  }
+
+  .banner {
+    background: linear-gradient(135deg, #ff6432 0%, #ffb347 100%);
+    padding: 36px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .banner::before {
+    content: '🎉';
+    font-size: 120px;
+    position: absolute;
+    right: -20px;
+    top: -20px;
+    opacity: 0.15;
+  }
+
+  .banner .eyebrow {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.8);
+    margin-bottom: 10px;
+  }
+
+  .banner h1 {
+    font-size: 26px;
+    font-weight: 800;
+    color: #fff;
+    line-height: 1.2;
+  }
+
+  .body {
+    padding: 36px;
+  }
+
+  .emoji-rating {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+
+  .emoji-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 12px;
+    border-radius: 16px;
+    transition: all 0.15s;
+    flex: 1;
+  }
+
+  .emoji-btn .face {
+    font-size: 32px;
+    filter: grayscale(0.7);
+    transition: all 0.15s;
+    transform: scale(0.9);
+  }
+
+  .emoji-btn .label {
+    font-size: 11px;
+    color: #bbb;
+    font-weight: 500;
+  }
+
+  .emoji-btn:hover .face, .emoji-btn.sel .face {
+    filter: none;
+    transform: scale(1.1);
+  }
+
+  .emoji-btn.sel {
+    background: #fff9f0;
+  }
+
+  .emoji-btn.sel .label {
+    color: #ff6432;
+    font-weight: 700;
+  }
+
+  .section-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-top: 28px;
+    margin-bottom: 14px;
+  }
+
+  .tag-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .tag {
+    padding: 8px 16px;
+    border-radius: 100px;
+    border: 2px solid #ffe8dc;
+    background: transparent;
+    font-size: 13px;
+    color: #ff6432;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+    font-weight: 500;
+  }
+
+  .tag:hover { background: #fff0e8; border-color: #ff6432; }
+  .tag.sel { background: #ff6432; border-color: #ff6432; color: #fff; }
+
+  .yn-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+
+  .yn-btn {
+    flex: 1;
+    padding: 14px;
+    border-radius: 14px;
+    border: 2px solid #ffe8dc;
+    background: transparent;
+    font-size: 20px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .yn-btn:hover { border-color: #ff6432; background: #fff0e8; transform: scale(1.03); }
+  .yn-btn.sel { border-color: #ff6432; background: #ff6432; }
+
+  .open-q {
+    margin-top: 24px;
+  }
+
+  .open-q label {
+    display: block;
+    font-size: 14px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 10px;
+  }
+
+  .open-q textarea {
+    width: 100%;
+    border: 2px solid #ffe8dc;
+    border-radius: 14px;
+    padding: 14px;
+    font-size: 14px;
+    font-family: inherit;
+    color: #1a1a1a;
+    resize: none;
+    height: 80px;
+    outline: none;
+    transition: border-color 0.15s;
+    background: #fff9f0;
+  }
+
+  .open-q textarea:focus { border-color: #ff6432; }
+
+  .submit-btn {
+    width: 100%;
+    margin-top: 28px;
+    padding: 16px;
+    background: linear-gradient(135deg, #ff6432, #ffb347);
+    border: none;
+    border-radius: 14px;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+    letter-spacing: 0.01em;
+  }
+
+  .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255,100,50,0.35); }
+
+  .thanks { display: none; text-align: center; padding: 60px 36px; }
+  .thanks.visible { display: block; }
+  .thanks .icon { font-size: 64px; margin-bottom: 20px; }
+  .thanks h2 { font-size: 26px; font-weight: 800; color: #1a1a1a; margin-bottom: 10px; }
+  .thanks p { font-size: 15px; color: #888; }
+  .card-body.hidden { display: none; }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="banner">
+    <div class="eyebrow">Etkinlik Sonrası</div>
+    <h1>Nasıl geçti? 🎊</h1>
+  </div>
+
+  <div class="card-body" id="cardBody">
+    <div class="body">
+      <div class="section-title">Etkinliği genel olarak nasıl buldunuz?</div>
+      <div class="emoji-rating">
+        <button class="emoji-btn" onclick="selEmoji(this)"><span class="face">😞</span><span class="label">Hayal kırıklığı</span></button>
+        <button class="emoji-btn" onclick="selEmoji(this)"><span class="face">😐</span><span class="label">İdare eder</span></button>
+        <button class="emoji-btn" onclick="selEmoji(this)"><span class="face">🙂</span><span class="label">İyiydi</span></button>
+        <button class="emoji-btn" onclick="selEmoji(this)"><span class="face">😄</span><span class="label">Harikaydı</span></button>
+        <button class="emoji-btn" onclick="selEmoji(this)"><span class="face">🤩</span><span class="label">Muhteşemdi</span></button>
+      </div>
+
+      <div class="section-title">En beğendiğiniz ne oldu?</div>
+      <div class="tag-cloud">
+        <button class="tag" onclick="this.classList.toggle('sel')">Konuşmacılar</button>
+        <button class="tag" onclick="this.classList.toggle('sel')">Network</button>
+        <button class="tag" onclick="this.classList.toggle('sel')">Workshop</button>
+        <button class="tag" onclick="this.classList.toggle('sel')">Organizasyon</button>
+        <button class="tag" onclick="this.classList.toggle('sel')">Mekan</button>
+        <button class="tag" onclick="this.classList.toggle('sel')">Yiyecek & İçecek</button>
+      </div>
+
+      <div class="section-title">Tekrar katılır mısınız?</div>
+      <div class="yn-row">
+        <button class="yn-btn" id="yn-yes" onclick="selYN('yes')">👍</button>
+        <button class="yn-btn" id="yn-no" onclick="selYN('no')">👎</button>
+      </div>
+
+      <div class="open-q">
+        <label>Bir sonraki etkinlikte ne görmeyi isterdiniz?</label>
+        <textarea placeholder="Öneri veya görüşünüz..."></textarea>
+      </div>
+
+      <button class="submit-btn" onclick="submit()">Gönder 🚀</button>
+    </div>
+  </div>
+
+  <div class="thanks" id="thanks">
+    <div class="icon">🎉</div>
+    <h2>Süpersin, teşekkürler!</h2>
+    <p>Görüşleriniz bir sonraki etkinliği<br>daha da iyi yapacak.</p>
+  </div>
+</div>
+
+<script>
+  function selEmoji(btn) {
+    document.querySelectorAll('.emoji-btn').forEach(b => b.classList.remove('sel'));
+    btn.classList.add('sel');
+  }
+
+  function selYN(v) {
+    document.getElementById('yn-yes').classList.toggle('sel', v === 'yes');
+    document.getElementById('yn-no').classList.toggle('sel', v === 'no');
+  }
+
+  function submit() {
+    document.getElementById('cardBody').classList.add('hidden');
+    document.getElementById('thanks').classList.add('visible');
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pazar Araştırması</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: linear-gradient(135deg, #e0f2fe 0%, #f0fdf4 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  .card {
+    background: #fff;
+    border-radius: 24px;
+    max-width: 560px;
+    width: 100%;
+    box-shadow: 0 8px 48px rgba(0,0,0,0.08);
+    overflow: hidden;
+  }
+
+  .top-bar {
+    padding: 24px 32px 0;
+  }
+
+  .meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+
+  .step-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #0ea5e9;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .step-count {
+    font-size: 12px;
+    color: #94a3b8;
+    font-weight: 500;
+  }
+
+  .prog-track {
+    height: 6px;
+    background: #e0f2fe;
+    border-radius: 100px;
+    margin-bottom: 32px;
+    overflow: hidden;
+  }
+
+  .prog-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #0ea5e9, #22d3ee);
+    border-radius: 100px;
+    transition: width 0.4s ease;
+  }
+
+  .body {
+    padding: 0 32px 32px;
+  }
+
+  .step { display: none; }
+  .step.active { display: block; }
+
+  h2 {
+    font-size: clamp(18px, 3.5vw, 24px);
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1.3;
+    margin-bottom: 8px;
+  }
+
+  .q-desc {
+    font-size: 14px;
+    color: #64748b;
+    margin-bottom: 28px;
+    line-height: 1.6;
+  }
+
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+
+  .grid-btn {
+    padding: 16px 12px;
+    border: 2px solid #e2e8f0;
+    border-radius: 14px;
+    background: transparent;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    color: #475569;
+    transition: all 0.15s;
+    font-family: inherit;
+    text-align: center;
+    line-height: 1.4;
+  }
+
+  .grid-btn .gbicon { font-size: 24px; display: block; margin-bottom: 8px; }
+  .grid-btn:hover { border-color: #0ea5e9; color: #0ea5e9; background: #f0f9ff; }
+  .grid-btn.sel { border-color: #0ea5e9; background: #e0f2fe; color: #0284c7; }
+
+  .list-opts {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 28px;
+  }
+
+  .list-opt {
+    padding: 14px 18px;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    background: transparent;
+    cursor: pointer;
+    font-size: 14px;
+    color: #475569;
+    transition: all 0.15s;
+    font-family: inherit;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .list-opt:hover { border-color: #0ea5e9; background: #f0f9ff; color: #0284c7; }
+  .list-opt.sel { border-color: #0ea5e9; background: #e0f2fe; color: #0284c7; font-weight: 600; }
+
+  .check-icon { font-size: 16px; opacity: 0; transition: opacity 0.15s; }
+  .list-opt.sel .check-icon { opacity: 1; }
+
+  .budget-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 28px;
+  }
+
+  .bp {
+    padding: 9px 18px;
+    border: 2px solid #e2e8f0;
+    border-radius: 100px;
+    background: transparent;
+    cursor: pointer;
+    font-size: 13px;
+    color: #475569;
+    font-weight: 600;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+
+  .bp:hover { border-color: #0ea5e9; color: #0ea5e9; }
+  .bp.sel { border-color: #0ea5e9; background: #0ea5e9; color: #fff; }
+
+  .open-input {
+    margin-bottom: 28px;
+  }
+
+  .open-input label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #475569;
+    margin-bottom: 8px;
+  }
+
+  .open-input textarea {
+    width: 100%;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 14px;
+    font-size: 14px;
+    font-family: inherit;
+    color: #0f172a;
+    resize: none;
+    height: 100px;
+    outline: none;
+    transition: border-color 0.15s;
+    background: #f8fafc;
+  }
+
+  .open-input textarea:focus { border-color: #0ea5e9; background: #fff; }
+
+  .nav-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .btn-back {
+    padding: 12px 22px;
+    background: transparent;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    color: #94a3b8;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+
+  .btn-back:hover { border-color: #94a3b8; color: #64748b; }
+
+  .btn-next {
+    padding: 12px 28px;
+    background: #0ea5e9;
+    border: none;
+    border-radius: 10px;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+
+  .btn-next:hover { background: #0284c7; box-shadow: 0 4px 14px rgba(14,165,233,0.3); }
+
+  .thanks { display: none; text-align: center; padding: 60px 32px; }
+  .thanks.visible { display: block; }
+  .thanks .icon { font-size: 56px; margin-bottom: 20px; }
+  .thanks h2 { font-size: 24px; font-weight: 800; color: #0f172a; margin-bottom: 10px; }
+  .thanks p { font-size: 14px; color: #64748b; line-height: 1.7; }
+  .thanks .cta { display: inline-block; margin-top: 20px; padding: 11px 24px; background: #0ea5e9; border-radius: 10px; color: #fff; font-size: 14px; font-weight: 700; text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="top-bar">
+    <div class="meta">
+      <span class="step-label" id="stepLabel">Sektör</span>
+      <span class="step-count" id="stepCount">1 / 4</span>
+    </div>
+    <div class="prog-track">
+      <div class="prog-fill" id="progFill" style="width: 25%"></div>
+    </div>
+  </div>
+
+  <div class="body">
+    <!-- Step 1 -->
+    <div class="step active" id="s1">
+      <h2>Hangi sektörde faaliyet gösteriyorsunuz?</h2>
+      <p class="q-desc">Araştırmamızı sektörünüze göre kişiselleştireceğiz.</p>
+      <div class="grid-2">
+        <button class="grid-btn" onclick="selGrid(this, 'grid1')"><span class="gbicon">🏭</span>Üretim</button>
+        <button class="grid-btn" onclick="selGrid(this, 'grid1')"><span class="gbicon">💻</span>Teknoloji</button>
+        <button class="grid-btn" onclick="selGrid(this, 'grid1')"><span class="gbicon">🏥</span>Sağlık</button>
+        <button class="grid-btn" onclick="selGrid(this, 'grid1')"><span class="gbicon">🛒</span>Perakende</button>
+        <button class="grid-btn" onclick="selGrid(this, 'grid1')"><span class="gbicon">🏦</span>Finans</button>
+        <button class="grid-btn" onclick="selGrid(this, 'grid1')"><span class="gbicon">🎓</span>Eğitim</button>
+      </div>
+      <div class="nav-row">
+        <span></span>
+        <button class="btn-next" onclick="goTo(2)">Devam →</button>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="step" id="s2">
+      <h2>Hangi konularda araştırma yapıyorsunuz?</h2>
+      <p class="q-desc">Birden fazla seçebilirsiniz.</p>
+      <div class="list-opts">
+        <button class="list-opt" onclick="this.classList.toggle('sel')">Müşteri davranışı ve satın alma alışkanlıkları <span class="check-icon">✓</span></button>
+        <button class="list-opt" onclick="this.classList.toggle('sel')">Rekabet analizi ve pazar payı <span class="check-icon">✓</span></button>
+        <button class="list-opt" onclick="this.classList.toggle('sel')">Ürün/hizmet geliştirme <span class="check-icon">✓</span></button>
+        <button class="list-opt" onclick="this.classList.toggle('sel')">Marka algısı ve bilinirlik <span class="check-icon">✓</span></button>
+        <button class="list-opt" onclick="this.classList.toggle('sel')">Fiyatlandırma stratejisi <span class="check-icon">✓</span></button>
+      </div>
+      <div class="nav-row">
+        <button class="btn-back" onclick="goTo(1)">← Geri</button>
+        <button class="btn-next" onclick="goTo(3)">Devam →</button>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="step" id="s3">
+      <h2>Araştırma bütçeniz ne kadar?</h2>
+      <p class="q-desc">Yaklaşık bir aralık yeterli.</p>
+      <div class="budget-pills">
+        <button class="bp" onclick="selBp(this)">5.000 ₺ altı</button>
+        <button class="bp" onclick="selBp(this)">5–20K ₺</button>
+        <button class="bp" onclick="selBp(this)">20–50K ₺</button>
+        <button class="bp" onclick="selBp(this)">50–100K ₺</button>
+        <button class="bp" onclick="selBp(this)">100K ₺ üzeri</button>
+        <button class="bp" onclick="selBp(this)">Henüz bilmiyorum</button>
+      </div>
+      <div class="nav-row">
+        <button class="btn-back" onclick="goTo(2)">← Geri</button>
+        <button class="btn-next" onclick="goTo(4)">Devam →</button>
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="step" id="s4">
+      <h2>Araştırmanızın amacını kısaca anlatın</h2>
+      <p class="q-desc">Bu bilgi uzmanımızın sizi en iyi şekilde hazırlamasına yardımcı olur.</p>
+      <div class="open-input">
+        <label>Araştırma hedefi</label>
+        <textarea placeholder="Örn: Yeni ürünümüzün hedef kitleyi nasıl karşıladığını anlamak istiyoruz..."></textarea>
+      </div>
+      <div class="nav-row">
+        <button class="btn-back" onclick="goTo(3)">← Geri</button>
+        <button class="btn-next" onclick="submitForm()">Tamamla ✓</button>
+      </div>
+    </div>
+
+    <!-- Thanks -->
+    <div class="thanks" id="thanks">
+      <div class="icon">📊</div>
+      <h2>Araştırma profiliniz oluşturuldu!</h2>
+      <p>Uzman ekibimiz ihtiyaçlarınızı inceleyip<br>48 saat içinde size özel bir teklif hazırlayacak.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  const labels = ['Sektör', 'Konu', 'Bütçe', 'Hedef'];
+  const total = 4;
+
+  function goTo(n) {
+    document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+    document.getElementById('s' + n).classList.add('active');
+    document.getElementById('progFill').style.width = (n / total * 100) + '%';
+    document.getElementById('stepLabel').textContent = labels[n - 1];
+    document.getElementById('stepCount').textContent = n + ' / ' + total;
+  }
+
+  function selGrid(btn, group) {
+    btn.closest('.grid-2').querySelectorAll('.grid-btn').forEach(b => b.classList.remove('sel'));
+    btn.classList.add('sel');
+  }
+
+  function selBp(btn) {
+    btn.closest('.budget-pills').querySelectorAll('.bp').forEach(b => b.classList.remove('sel'));
+    btn.classList.add('sel');
+  }
+
+  function submitForm() {
+    document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+    document.getElementById('progFill').style.width = '100%';
+    document.getElementById('thanks').classList.add('visible');
+  }
+</script>
+</body>
+</html>

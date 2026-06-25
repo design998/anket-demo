@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Çalışan Bağlılığı</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: #1c1f2e;
+    color: #e8eaf0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  .shell {
+    max-width: 580px;
+    width: 100%;
+  }
+
+  .progress-bar {
+    height: 3px;
+    background: #2a2d3e;
+    border-radius: 100px;
+    margin-bottom: 40px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #818cf8, #c084fc);
+    border-radius: 100px;
+    transition: width 0.4s ease;
+  }
+
+  .step-indicator {
+    font-size: 12px;
+    color: #6b7194;
+    margin-bottom: 8px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .question {
+    display: none;
+  }
+
+  .question.active {
+    display: block;
+  }
+
+  h2 {
+    font-size: clamp(18px, 3.5vw, 26px);
+    font-weight: 700;
+    line-height: 1.3;
+    margin-bottom: 10px;
+    color: #f0f1f6;
+  }
+
+  .q-sub {
+    font-size: 14px;
+    color: #6b7194;
+    margin-bottom: 32px;
+  }
+
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 32px;
+  }
+
+  .opt {
+    padding: 16px 20px;
+    background: #252838;
+    border: 1px solid #2e3147;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #c5c9de;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    text-align: left;
+    width: 100%;
+  }
+
+  .opt-marker {
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    border: 1px solid #3e4160;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+  }
+
+  .opt.sel .opt-marker {
+    background: #818cf8;
+    border-color: #818cf8;
+  }
+
+  .opt.sel .opt-marker::after {
+    content: '';
+    width: 8px; height: 8px;
+    background: #fff;
+    border-radius: 50%;
+  }
+
+  .opt:hover { border-color: #818cf8; background: #2a2d3e; }
+  .opt.sel { border-color: #818cf8; background: #2a2d3e; color: #e8eaf0; }
+
+  .scale-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .scale-btn {
+    flex: 1;
+    padding: 12px 4px;
+    background: #252838;
+    border: 1px solid #2e3147;
+    border-radius: 10px;
+    color: #6b7194;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .scale-btn:hover { border-color: #818cf8; color: #818cf8; }
+  .scale-btn.sel { background: #818cf8; border-color: #818cf8; color: #fff; }
+
+  .scale-ends {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: #6b7194;
+    margin-bottom: 32px;
+  }
+
+  .nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .btn-back {
+    padding: 12px 22px;
+    background: transparent;
+    border: 1px solid #2e3147;
+    border-radius: 10px;
+    color: #6b7194;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .btn-back:hover { border-color: #818cf8; color: #818cf8; }
+
+  .btn-next {
+    padding: 12px 28px;
+    background: linear-gradient(135deg, #818cf8, #c084fc);
+    border: none;
+    border-radius: 10px;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+
+  .btn-next:hover { opacity: 0.85; }
+
+  .thanks { display: none; text-align: center; padding: 60px 0; }
+  .thanks.visible { display: block; }
+  .thanks .icon { font-size: 56px; margin-bottom: 24px; }
+  .thanks h2 { font-size: 26px; font-weight: 700; margin-bottom: 10px; }
+  .thanks p { color: #6b7194; font-size: 15px; line-height: 1.6; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <div id="formArea">
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill" style="width: 25%"></div>
+    </div>
+
+    <!-- Q1 -->
+    <div class="question active" id="q1">
+      <div class="step-indicator">1 / 4</div>
+      <h2>Şirketimizde çalışmaktan genel olarak ne kadar memnunsunuz?</h2>
+      <p class="q-sub">En dürüst yanıtınız bizi geliştirir.</p>
+      <div class="options">
+        <button class="opt" onclick="selectOpt(this)"><span class="opt-marker"></span>Çok memnunum, harika bir ekip</button>
+        <button class="opt" onclick="selectOpt(this)"><span class="opt-marker"></span>Genel olarak memnunum</button>
+        <button class="opt" onclick="selectOpt(this)"><span class="opt-marker"></span>Kararsızım, iyileştirilebilecek alanlar var</button>
+        <button class="opt" onclick="selectOpt(this)"><span class="opt-marker"></span>Memnun değilim</button>
+      </div>
+      <div class="nav">
+        <span></span>
+        <button class="btn-next" onclick="goTo(2)">Devam →</button>
+      </div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="question" id="q2">
+      <div class="step-indicator">2 / 4</div>
+      <h2>Yöneticinizden yeterli destek aldığınızı düşünüyor musunuz?</h2>
+      <p class="q-sub">1 = Hiç destek almıyorum, 5 = Tam destek alıyorum</p>
+      <div class="scale-row" id="scale2"></div>
+      <div class="scale-ends"><span>Hiç destek yok</span><span>Tam destek</span></div>
+      <div class="nav">
+        <button class="btn-back" onclick="goTo(1)">← Geri</button>
+        <button class="btn-next" onclick="goTo(3)">Devam →</button>
+      </div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="question" id="q3">
+      <div class="step-indicator">3 / 4</div>
+      <h2>Kariyer gelişiminiz için yeterli fırsat var mı?</h2>
+      <p class="q-sub">Birden fazla seçebilirsiniz.</p>
+      <div class="options">
+        <button class="opt" onclick="toggleOpt(this)"><span class="opt-marker"></span>Eğitim ve sertifika fırsatları yeterli</button>
+        <button class="opt" onclick="toggleOpt(this)"><span class="opt-marker"></span>Terfi sistemi net ve adil</button>
+        <button class="opt" onclick="toggleOpt(this)"><span class="opt-marker"></span>Mentorluk programı işe yarıyor</button>
+        <button class="opt" onclick="toggleOpt(this)"><span class="opt-marker"></span>Gelişim için yeterli kaynak yok</button>
+      </div>
+      <div class="nav">
+        <button class="btn-back" onclick="goTo(2)">← Geri</button>
+        <button class="btn-next" onclick="goTo(4)">Devam →</button>
+      </div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="question" id="q4">
+      <div class="step-indicator">4 / 4</div>
+      <h2>Şirketi geliştirmek için bir öneriniz var mı?</h2>
+      <p class="q-sub">Tamamen anonim, içtenlikle yazabilirsiniz.</p>
+      <div style="margin-bottom: 32px;">
+        <textarea style="width:100%; background:#252838; border:1px solid #2e3147; border-radius:12px; padding:16px; color:#e8eaf0; font-size:14px; font-family:inherit; resize:none; height:120px; outline:none; transition:border-color 0.15s;" placeholder="Öneri veya görüşünüz..." onfocus="this.style.borderColor='#818cf8'" onblur="this.style.borderColor='#2e3147'"></textarea>
+      </div>
+      <div class="nav">
+        <button class="btn-back" onclick="goTo(3)">← Geri</button>
+        <button class="btn-next" onclick="submitForm()">Anketi Tamamla</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="thanks" id="thanks">
+    <div class="icon">💜</div>
+    <h2>Katılımınız için teşekkürler</h2>
+    <p>Yanıtlarınız anonim olarak değerlendirilecek<br>ve çalışma ortamımızı iyileştirmek için kullanılacak.</p>
+  </div>
+</div>
+
+<script>
+  // Build scale for Q2
+  const scale2 = document.getElementById('scale2');
+  for (let i = 1; i <= 5; i++) {
+    const b = document.createElement('button');
+    b.className = 'scale-btn';
+    b.textContent = i;
+    b.onclick = () => {
+      scale2.querySelectorAll('.scale-btn').forEach(x => x.classList.remove('sel'));
+      b.classList.add('sel');
+    };
+    scale2.appendChild(b);
+  }
+
+  function goTo(n) {
+    document.querySelectorAll('.question').forEach(q => q.classList.remove('active'));
+    document.getElementById('q' + n).classList.add('active');
+    document.getElementById('progressFill').style.width = (n * 25) + '%';
+  }
+
+  function selectOpt(btn) {
+    btn.closest('.options').querySelectorAll('.opt').forEach(o => o.classList.remove('sel'));
+    btn.classList.add('sel');
+  }
+
+  function toggleOpt(btn) {
+    btn.classList.toggle('sel');
+  }
+
+  function submitForm() {
+    document.getElementById('formArea').style.display = 'none';
+    document.getElementById('thanks').classList.add('visible');
+  }
+</script>
+</body>
+</html>
