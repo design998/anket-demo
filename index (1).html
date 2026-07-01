@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Online Anket & Kişiselleştirme Demoları</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0a0a0a;
+    --surface: #111111;
+    --surface2: #181818;
+    --border: #222222;
+    --border2: #2a2a2a;
+    --text: #ffffff;
+    --text-muted: rgba(255,255,255,0.45);
+    --text-sub: rgba(255,255,255,0.25);
+    --accent: #ffffff;
+    --radius: 14px;
+  }
+
+  html, body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ─── HERO ─── */
+  .hero {
+    padding: 72px 40px 56px;
+    text-align: center;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  .hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 100px;
+    padding: 5px 14px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+  }
+
+  .hero-eyebrow .dot {
+    width: 6px; height: 6px;
+    background: #4ade80;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%,100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  .hero h1 {
+    font-size: clamp(28px, 5vw, 48px);
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    color: #fff;
+    margin-bottom: 16px;
+  }
+
+  .hero p {
+    font-size: 16px;
+    color: var(--text-muted);
+    line-height: 1.7;
+    max-width: 520px;
+    margin: 0 auto;
+  }
+
+  /* ─── TABS ─── */
+  .tab-section {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+  }
+
+  .tab-bar {
+    display: flex;
+    gap: 4px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 4px;
+    width: fit-content;
+    margin: 0 auto 40px;
+  }
+
+  .tab-btn {
+    padding: 10px 28px;
+    border-radius: 9px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+    white-space: nowrap;
+  }
+
+  .tab-btn.active {
+    background: #fff;
+    color: #000;
+  }
+
+  /* ─── LAYOUT ─── */
+  .demo-layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 20px;
+    align-items: start;
+  }
+
+  /* ─── SIDEBAR ─── */
+  .sidebar {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    position: sticky;
+    top: 20px;
+  }
+
+  .sidebar-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-sub);
+    padding: 0 4px;
+    margin-bottom: 8px;
+  }
+
+  .demo-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 9px;
+    cursor: pointer;
+    transition: all 0.15s;
+    border: 1px solid transparent;
+    margin-bottom: 2px;
+  }
+
+  .demo-item:hover {
+    background: var(--surface2);
+  }
+
+  .demo-item.active {
+    background: var(--surface2);
+    border-color: var(--border2);
+  }
+
+  .demo-icon {
+    width: 34px; height: 34px;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+    background: var(--border);
+  }
+
+  .demo-item.active .demo-icon {
+    background: rgba(255,255,255,0.12);
+  }
+
+  .demo-info { flex: 1; min-width: 0; }
+
+  .demo-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: color 0.15s;
+  }
+
+  .demo-item.active .demo-name { color: #fff; }
+
+  .demo-type {
+    font-size: 11px;
+    color: var(--text-sub);
+    margin-top: 1px;
+  }
+
+  .active-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #4ade80;
+    flex-shrink: 0;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+
+  .demo-item.active .active-dot { opacity: 1; }
+
+  /* ─── PREVIEW ─── */
+  .preview-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .preview-topbar {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .preview-meta { display: flex; align-items: center; gap: 10px; }
+
+  .preview-dots {
+    display: flex; gap: 5px;
+  }
+  .preview-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+  }
+  .preview-dot:nth-child(1) { background: #ff5f57; }
+  .preview-dot:nth-child(2) { background: #ffbe2e; }
+  .preview-dot:nth-child(3) { background: #28c840; }
+
+  .preview-url {
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 6px;
+    padding: 5px 12px;
+    font-size: 11px;
+    color: var(--text-sub);
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    flex: 1;
+    max-width: 340px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .preview-badge {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    color: #4ade80;
+    font-weight: 600;
+  }
+
+  .preview-badge .dot { width: 6px; height: 6px; background: #4ade80; border-radius: 50%; }
+
+  .preview-frame {
+    width: 100%;
+    height: 580px;
+    border: none;
+    display: block;
+    background: #0a0a0a;
+  }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 700px) {
+    .demo-layout { grid-template-columns: 1fr; }
+    .sidebar { position: static; }
+    .hero { padding: 48px 24px 40px; }
+    .tab-btn { padding: 10px 18px; font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow"><span class="dot"></span> Canlı Demo</div>
+  <h1>Online anket ve kişiselleştirme kurgularımız</h1>
+  <p>Müşterilerinizle doğru anda, doğru içerikle buluşun. Her örneği gerçekten deneyimleyin.</p>
+</div>
+
+<!-- TABS + CONTENT -->
+<div class="tab-section">
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('anket', this)">Anket Örnekleri</button>
+    <button class="tab-btn" onclick="switchTab('kisi', this)">Kişiselleştirme</button>
+  </div>
+
+  <!-- ANKET TAB -->
+  <div id="tab-anket" class="demo-layout">
+    <div class="sidebar">
+      <div class="sidebar-label">Anket Tipleri</div>
+      <div class="demo-item active" onclick="loadDemo(this, 'https://design998.github.io/anket-demo/nps.html', 'NPS Anketi')">
+        <div class="demo-icon">📊</div>
+        <div class="demo-info">
+          <div class="demo-name">NPS Anketi</div>
+          <div class="demo-type">Tavsiye skoru</div>
+        </div>
+        <div class="active-dot"></div>
+      </div>
+      <div class="demo-item" onclick="loadDemo(this, 'https://design998.github.io/anket-demo/musteri-memnuniyeti.html', 'Müşteri Memnuniyeti')">
+        <div class="demo-icon">⭐</div>
+        <div class="demo-info">
+          <div class="demo-name">Müşteri Memnuniyeti</div>
+          <div class="demo-type">Yıldız + değerlendirme</div>
+        </div>
+        <div class="active-dot"></div>
+      </div>
+      <div class="demo-item" onclick="loadDemo(this, 'https://design998.github.io/anket-demo/calisan-bagliligi.html', 'Çalışan Bağlılığı')">
+        <div class="demo-icon">💜</div>
+        <div class="demo-info">
+          <div class="demo-name">Çalışan Bağlılığı</div>
+          <div class="demo-type">Çok adımlı HR</div>
+        </div>
+        <div class="active-dot"></div>
+      </div>
+      <div class="demo-item" onclick="loadDemo(this, 'https://design998.github.io/anket-demo/urun-feedback.html', 'Ürün Geri Bildirimi')">
+        <div class="demo-icon">🚀</div>
+        <div class="demo-info">
+          <div class="demo-name">Ürün Geri Bildirimi</div>
+          <div class="demo-type">SaaS / Tech</div>
+        </div>
+        <div class="active-dot"></div>
+      </div>
+      <div class="demo-item" onclick="loadDemo(this, 'https://design998.github.io/anket-demo/etkinlik-sonrasi.html', 'Etkinlik Sonrası')">
+        <div class="demo-icon">🎉</div>
+        <div class="demo-info">
+          <div class="demo-name">Etkinlik Sonrası</div>
+          <div class="demo-type">Emoji puanlama</div>
+        </div>
+        <div class="active-dot"></div>
+      </div>
+      <div class="demo-item" onclick="loadDemo(this, 'https://design998.github.io/anket-demo/lead-gen.html', 'Lead Gen Formu')">
+        <div class="demo-icon">📬</div>
+        <div class="demo-info">
+          <div class="demo-name">Lead Gen Formu</div>
+          <div class="demo-type">B2B kurumsal</div>
+        </div>
+        <div class="active-dot"></div>
+      </div>
+      <div class="demo-item" onclick="loadDemo(this, 'https://design998.github.io/anket-demo/pazar-arastirmasi.html', 'Pazar Araştırması')">
+        <div class="demo-icon">📈</div>
+        <div class="demo-info">
+          <div class="demo-name">Pazar Araştırması</div>
+          <div class="demo-type">Çok adımlı, progress</div>
+        </div>
+        <div class="active-dot"></div>
+      </div>
+    </div>
+    <div class="preview-wrap">
+      <div class="preview-topbar">
+        <div class="preview-meta">
+          <div class="preview-dots">
+            <div class="preview-dot"></div>
+            <div class="preview-dot"></div>
+            <div class="preview-dot"></div>
+          </div>
+          <div class="preview-url" id="anket-url">design998.github.io/anket-demo/nps.html</div>
+        </div>
+        <div class="preview-badge"><span class="dot"></span> Canlı</div>
+      </div>
+      <iframe class="preview-frame" id="anket-frame" src="https://design998.github.io/anket-demo/nps.html"></iframe>
+    </div>
+  </div>
+
+  <!-- KİŞİSELLEŞTİRME TAB -->
+  <div id="tab-kisi" class="demo-layout" style="display:none;">
+    <div class="sidebar">
+      <div class="sidebar-label">Kurgu Tipleri</div>
+      <div class="demo-item active" onclick="loadDemoK(this, 'https://design998.github.io/anket-demo/geri-sayim.html', 'Geri Sayım Banner')">
+        <div class="demo-icon">⏱️</div>
+        <div class="demo-info">
+          <div class="demo-name">Geri Sayım</div>
+          <div class="demo-type">Kampanya sayacı</div>
+        </div>
+        <div class="active-dot"></div>
+      </div>
+      <div class="demo-item" onclick="loadDemoK(this, 'https://design998.github.io/anket-demo/exit-intent.html', 'Exit Intent Popup')">
+        <div class="demo-icon">🎁</div>
+        <div class="demo-info">
+          <div class="demo-name">Exit Intent Popup</div>
+          <div class="demo-type">İndirim kodu</div>
+        </div>
+        <div class="active-dot"></div>
+      </div>
+      <div class="demo-item" onclick="loadDemoK(this, 'https://design998.github.io/anket-demo/hosgeldin-popup.html', 'Hoşgeldin Popup')">
+        <div class="demo-icon">👋</div>
+        <div class="demo-info">
+          <div class="demo-name">Hoşgeldin Popup</div>
+          <div class="demo-type">İlk ziyaretçi</div>
+        </div>
+        <div class="active-dot"></div>
+      </div>
+      <div class="demo-item" onclick="loadDemoK(this, 'https://design998.github.io/anket-demo/scroll-banner.html', 'Scroll Tetikli Banner')">
+        <div class="demo-icon">💡</div>
+        <div class="demo-info">
+          <div class="demo-name">Scroll Tetikli Banner</div>
+          <div class="demo-type">%50 scroll trigger</div>
+        </div>
+        <div class="active-dot"></div>
+      </div>
+    </div>
+    <div class="preview-wrap">
+      <div class="preview-topbar">
+        <div class="preview-meta">
+          <div class="preview-dots">
+            <div class="preview-dot"></div>
+            <div class="preview-dot"></div>
+            <div class="preview-dot"></div>
+          </div>
+          <div class="preview-url" id="kisi-url">design998.github.io/anket-demo/geri-sayim.html</div>
+        </div>
+        <div class="preview-badge"><span class="dot"></span> Canlı</div>
+      </div>
+      <iframe class="preview-frame" id="kisi-frame" src="https://design998.github.io/anket-demo/geri-sayim.html"></iframe>
+    </div>
+  </div>
+</div>
+
+<script>
+  function switchTab(tab, btn) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-anket').style.display = tab === 'anket' ? 'grid' : 'none';
+    document.getElementById('tab-kisi').style.display = tab === 'kisi' ? 'grid' : 'none';
+  }
+
+  function loadDemo(el, url, name) {
+    document.querySelectorAll('#tab-anket .demo-item').forEach(i => i.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('anket-frame').src = url;
+    document.getElementById('anket-url').textContent = url.replace('https://', '');
+  }
+
+  function loadDemoK(el, url, name) {
+    document.querySelectorAll('#tab-kisi .demo-item').forEach(i => i.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('kisi-frame').src = url;
+    document.getElementById('kisi-url').textContent = url.replace('https://', '');
+  }
+</script>
+</body>
+</html>

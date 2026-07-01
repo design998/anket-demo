@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scroll Tetikli Banner</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: #0a0a0a;
+    color: #fff;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .demo-label {
+    position: fixed;
+    top: 16px; left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 100px;
+    padding: 6px 16px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.5);
+    backdrop-filter: blur(8px);
+    white-space: nowrap;
+    z-index: 100;
+  }
+
+  .scene {
+    position: relative;
+    width: 100%;
+    max-width: 720px;
+    height: 440px;
+    overflow: hidden;
+    border-radius: 20px;
+    border: 1px solid #222;
+  }
+
+  /* Scrollable mock page */
+  .scroll-page {
+    background: #111;
+    height: 100%;
+    overflow-y: scroll;
+    scrollbar-width: none;
+  }
+  .scroll-page::-webkit-scrollbar { display: none; }
+
+  .scroll-content {
+    padding: 36px;
+  }
+
+  .mock-section { margin-bottom: 32px; }
+  .mock-section-title { height: 14px; background: #2a2a2a; border-radius: 4px; width: 45%; margin-bottom: 14px; }
+  .mock-line { height: 11px; background: #1e1e1e; border-radius: 4px; margin-bottom: 9px; }
+  .mock-line.w80 { width: 80%; }
+  .mock-line.w65 { width: 65%; }
+  .mock-line.w90 { width: 90%; }
+
+  .mock-img-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
+  .mock-img { height: 90px; background: #1a1a1a; border-radius: 10px; border: 1px solid #222; }
+
+  /* Scroll trigger indicator */
+  .scroll-hint {
+    position: absolute;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.7);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 100px;
+    padding: 6px 16px;
+    font-size: 11px;
+    color: rgba(255,255,255,0.4);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    backdrop-filter: blur(8px);
+    transition: opacity 0.3s;
+    pointer-events: none;
+  }
+
+  /* Floating banner */
+  .float-banner {
+    position: absolute;
+    bottom: -100px;
+    left: 16px; right: 16px;
+    background: linear-gradient(135deg, #111827 0%, #1f2937 100%);
+    border: 1px solid rgba(16,185,129,0.25);
+    border-radius: 16px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    transition: bottom 0.45s cubic-bezier(0.34,1.3,0.64,1);
+    z-index: 10;
+  }
+
+  .float-banner.visible { bottom: 16px; }
+
+  .banner-icon {
+    width: 44px; height: 44px;
+    background: rgba(16,185,129,0.15);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+    border: 1px solid rgba(16,185,129,0.2);
+  }
+
+  .banner-text { flex: 1; }
+
+  .banner-tag {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #10b981;
+    margin-bottom: 3px;
+  }
+
+  .banner-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 2px;
+  }
+
+  .banner-sub {
+    font-size: 12px;
+    color: rgba(255,255,255,0.4);
+  }
+
+  .banner-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: flex-end;
+    flex-shrink: 0;
+  }
+
+  .banner-cta {
+    padding: 8px 16px;
+    background: #10b981;
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    white-space: nowrap;
+    transition: background 0.15s;
+  }
+  .banner-cta:hover { background: #059669; }
+
+  .banner-close {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.25);
+    font-size: 16px;
+    cursor: pointer;
+    font-family: inherit;
+    line-height: 1;
+    transition: color 0.15s;
+  }
+  .banner-close:hover { color: rgba(255,255,255,0.5); }
+
+  /* Progress indicator */
+  .progress-ring {
+    position: absolute;
+    top: 12px; right: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(0,0,0,0.5);
+    border-radius: 100px;
+    padding: 4px 10px;
+    font-size: 11px;
+    color: rgba(255,255,255,0.4);
+    backdrop-filter: blur(4px);
+  }
+
+  .prog-bar {
+    width: 60px; height: 3px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 100px;
+    overflow: hidden;
+  }
+
+  .prog-fill {
+    height: 100%;
+    background: #10b981;
+    border-radius: 100px;
+    width: 0%;
+    transition: width 0.1s;
+  }
+
+  .info-box {
+    background: rgba(16,185,129,0.06);
+    border: 1px solid rgba(16,185,129,0.15);
+    border-radius: 12px;
+    padding: 16px 20px;
+    max-width: 720px;
+    width: 100%;
+  }
+  .info-box p { font-size: 13px; color: rgba(255,255,255,0.5); line-height: 1.6; }
+  .info-box strong { color: #10b981; }
+
+  .retrigger {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    padding: 8px 18px;
+    color: rgba(255,255,255,0.4);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+  }
+  .retrigger:hover { color: rgba(255,255,255,0.7); border-color: rgba(255,255,255,0.25); }
+</style>
+</head>
+<body>
+<div class="demo-label">📌 Kişiselleştirme Örneği — Scroll Tetikli Banner</div>
+
+<div class="scene">
+  <div class="scroll-page" id="scrollPage">
+    <div class="scroll-content">
+      <!-- Section 1 -->
+      <div class="mock-section">
+        <div class="mock-section-title"></div>
+        <div class="mock-line w90"></div>
+        <div class="mock-line w80"></div>
+        <div class="mock-line w65"></div>
+        <div class="mock-img-row">
+          <div class="mock-img"></div>
+          <div class="mock-img"></div>
+        </div>
+      </div>
+      <!-- Section 2 -->
+      <div class="mock-section">
+        <div class="mock-section-title"></div>
+        <div class="mock-line w80"></div>
+        <div class="mock-line w90"></div>
+        <div class="mock-line w65"></div>
+        <div class="mock-line w80"></div>
+      </div>
+      <!-- Section 3 -->
+      <div class="mock-section">
+        <div class="mock-section-title"></div>
+        <div class="mock-line w65"></div>
+        <div class="mock-line w90"></div>
+        <div class="mock-line w80"></div>
+        <div class="mock-img-row">
+          <div class="mock-img"></div>
+          <div class="mock-img"></div>
+        </div>
+      </div>
+      <!-- extra space to allow scroll -->
+      <div style="height:80px"></div>
+    </div>
+  </div>
+
+  <div class="progress-ring">
+    <div class="prog-bar"><div class="prog-fill" id="progFill"></div></div>
+    <span id="progPct">0%</span>
+  </div>
+
+  <div class="scroll-hint" id="scrollHint">↕ Sayfayı kaydırın</div>
+
+  <div class="float-banner" id="floatBanner">
+    <div class="banner-icon">💡</div>
+    <div class="banner-text">
+      <div class="banner-tag">Size özel teklif</div>
+      <div class="banner-title">Ücretsiz danışmanlık hakkı kazandınız</div>
+      <div class="banner-sub">30 dakika, tamamen ücretsiz</div>
+    </div>
+    <div class="banner-actions">
+      <button class="banner-close" onclick="document.getElementById('floatBanner').classList.remove('visible')">✕</button>
+      <button class="banner-cta">Randevu Al</button>
+    </div>
+  </div>
+</div>
+
+<div style="display:flex;flex-direction:column;align-items:center;gap:10px;width:100%;max-width:720px;">
+  <div class="info-box">
+    <p><strong>Nasıl çalışır:</strong> Ziyaretçi sayfanın %50'sini geçtiğinde banner aşağıdan kayarak görünür. İçeriği okuyan, gerçekten ilgilenen kullanıcıyı hedefler. Tetikleme yüzdesi, içerik ve görünüm tamamen özelleştirilebilir.</p>
+  </div>
+  <button class="retrigger" onclick="resetDemo()">↺ Demo'yu Sıfırla</button>
+</div>
+
+<script>
+  const page = document.getElementById('scrollPage');
+  const banner = document.getElementById('floatBanner');
+  const hint = document.getElementById('scrollHint');
+  const fill = document.getElementById('progFill');
+  const pct = document.getElementById('progPct');
+  let shown = false;
+
+  page.addEventListener('scroll', () => {
+    const max = page.scrollHeight - page.clientHeight;
+    const progress = Math.round((page.scrollTop / max) * 100);
+    fill.style.width = progress + '%';
+    pct.textContent = progress + '%';
+
+    if (progress > 10) hint.style.opacity = '0';
+
+    if (progress >= 50 && !shown) {
+      shown = true;
+      banner.classList.add('visible');
+    }
+  });
+
+  function resetDemo() {
+    shown = false;
+    page.scrollTop = 0;
+    banner.classList.remove('visible');
+    fill.style.width = '0%';
+    pct.textContent = '0%';
+    hint.style.opacity = '1';
+  }
+</script>
+</body>
+</html>

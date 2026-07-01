@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Exit Intent Popup</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: #0a0a0a;
+    color: #fff;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .demo-label {
+    position: fixed;
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 100px;
+    padding: 6px 16px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.5);
+    backdrop-filter: blur(8px);
+    white-space: nowrap;
+    z-index: 100;
+  }
+
+  .scene {
+    position: relative;
+    width: 100%;
+    max-width: 720px;
+  }
+
+  .page-mock {
+    width: 100%;
+    min-height: 420px;
+    background: #111;
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid #222;
+    padding: 40px;
+  }
+
+  .mock-nav {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 40px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #1e1e1e;
+  }
+
+  .mock-nav-dot { height: 10px; background: #2a2a2a; border-radius: 4px; }
+
+  .mock-hero { height: 16px; background: #2a2a2a; border-radius: 4px; margin-bottom: 12px; }
+  .mock-hero.short { width: 55%; }
+  .mock-hero.shorter { width: 35%; height: 12px; background: #1e1e1e; }
+
+  .mock-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+    margin-top: 28px;
+  }
+
+  .mock-card { height: 80px; background: #1a1a1a; border-radius: 10px; border: 1px solid #222; }
+
+  /* Overlay */
+  .overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.65);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(2px);
+    animation: fadeIn 0.3s ease;
+  }
+
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .popup {
+    background: #141414;
+    border: 1px solid #2a2a2a;
+    border-radius: 20px;
+    width: 380px;
+    overflow: hidden;
+    animation: popIn 0.35s cubic-bezier(0.34,1.56,0.64,1);
+    position: relative;
+  }
+
+  @keyframes popIn {
+    from { transform: scale(0.85); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  .popup-top {
+    background: linear-gradient(135deg, #1a1218 0%, #1a1a2e 100%);
+    padding: 28px 28px 20px;
+    text-align: center;
+    border-bottom: 1px solid #222;
+    position: relative;
+  }
+
+  .popup-close {
+    position: absolute;
+    top: 12px; right: 14px;
+    background: none; border: none;
+    color: rgba(255,255,255,0.3);
+    font-size: 18px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: color 0.15s;
+  }
+  .popup-close:hover { color: rgba(255,255,255,0.6); }
+
+  .popup-emoji { font-size: 40px; margin-bottom: 12px; }
+
+  .popup-tag {
+    display: inline-block;
+    background: rgba(255,70,70,0.15);
+    color: #ff6b6b;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+  }
+
+  .popup-title {
+    font-size: 20px;
+    font-weight: 800;
+    color: #fff;
+    line-height: 1.25;
+    margin-bottom: 6px;
+  }
+
+  .popup-sub {
+    font-size: 13px;
+    color: rgba(255,255,255,0.45);
+    line-height: 1.5;
+  }
+
+  .popup-body {
+    padding: 24px 28px;
+  }
+
+  .discount-box {
+    background: rgba(255,70,70,0.08);
+    border: 1.5px dashed rgba(255,70,70,0.3);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+    margin-bottom: 18px;
+  }
+
+  .discount-label {
+    font-size: 11px;
+    color: rgba(255,255,255,0.4);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 6px;
+  }
+
+  .discount-code {
+    font-size: 26px;
+    font-weight: 900;
+    color: #ff6b6b;
+    letter-spacing: 0.08em;
+  }
+
+  .discount-exp {
+    font-size: 11px;
+    color: rgba(255,255,255,0.3);
+    margin-top: 4px;
+  }
+
+  .copy-btn {
+    width: 100%;
+    padding: 13px;
+    background: #ff4646;
+    border: none;
+    border-radius: 10px;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-bottom: 10px;
+    font-family: inherit;
+    transition: all 0.15s;
+  }
+
+  .copy-btn:hover { background: #e03030; }
+
+  .dismiss {
+    width: 100%;
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.25);
+    font-size: 12px;
+    cursor: pointer;
+    font-family: inherit;
+    padding: 4px;
+    transition: color 0.15s;
+  }
+  .dismiss:hover { color: rgba(255,255,255,0.4); }
+
+  .info-box {
+    background: rgba(255,70,70,0.06);
+    border: 1px solid rgba(255,70,70,0.15);
+    border-radius: 12px;
+    padding: 16px 20px;
+    max-width: 720px;
+    width: 100%;
+  }
+  .info-box p { font-size: 13px; color: rgba(255,255,255,0.5); line-height: 1.6; }
+  .info-box strong { color: #ff6b6b; }
+
+  .retrigger {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    padding: 8px 18px;
+    color: rgba(255,255,255,0.4);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+    margin-top: 4px;
+  }
+  .retrigger:hover { color: rgba(255,255,255,0.7); border-color: rgba(255,255,255,0.25); }
+</style>
+</head>
+<body>
+<div class="demo-label">📌 Kişiselleştirme Örneği — Exit Intent Popup</div>
+
+<div class="scene">
+  <div class="page-mock">
+    <div class="mock-nav">
+      <div class="mock-nav-dot" style="width:60px"></div>
+      <div class="mock-nav-dot" style="width:40px"></div>
+      <div class="mock-nav-dot" style="width:50px"></div>
+      <div class="mock-nav-dot" style="width:45px"></div>
+    </div>
+    <div class="mock-hero"></div>
+    <div class="mock-hero short"></div>
+    <div class="mock-hero shorter"></div>
+    <div class="mock-grid">
+      <div class="mock-card"></div>
+      <div class="mock-card"></div>
+      <div class="mock-card"></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="overlay">
+    <div class="popup">
+      <div class="popup-top">
+        <button class="popup-close" onclick="closePopup()">✕</button>
+        <div class="popup-emoji">🎁</div>
+        <div class="popup-tag">Bekleyin!</div>
+        <div class="popup-title">Gitmeden önce<br>%20 indirim kazanın</div>
+        <div class="popup-sub">Sadece bugün geçerli, özel teklifiniz hazır.</div>
+      </div>
+      <div class="popup-body">
+        <div class="discount-box">
+          <div class="discount-label">İndirim Kodunuz</div>
+          <div class="discount-code">GITMEX20</div>
+          <div class="discount-exp">Bugün gece yarısına kadar geçerli</div>
+        </div>
+        <button class="copy-btn" onclick="this.textContent='✓ Kopyalandı!'">Kodu Kopyala & Alışverişe Devam Et</button>
+        <button class="dismiss" onclick="closePopup()">Hayır teşekkürler, indirim istemiyorum</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="display:flex;flex-direction:column;align-items:center;gap:10px;width:100%;max-width:720px;">
+  <div class="info-box">
+    <p><strong>Nasıl çalışır:</strong> Ziyaretçinin fare imleci tarayıcı penceresinin üst kısmına geçtiğinde (sekmeyi kapatmak veya başka sayfaya gitmek üzereyken) popup tetiklenir. Tek seferlik gösterilir, tekrar rahatsız etmez. Tetikleyici, içerik ve indirim oranı tamamen özelleştirilebilir.</p>
+  </div>
+  <button class="retrigger" onclick="document.getElementById('overlay').style.display='flex'">↺ Popup'ı Tekrar Göster</button>
+</div>
+
+<script>
+  function closePopup() {
+    document.getElementById('overlay').style.display = 'none';
+  }
+</script>
+</body>
+</html>
